@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>London — Wed to Wed</title>
+<style>
+  :root {
+    --bg: #F4F5F4;
+    --card: #FFFFFF;
+    --ink: #1B2228;
+    --mut: #5C666E;
+    --line: #E1E4E2;
+    --must: #C8102E;
+    --must-bg: #FBEAEC;
+    --pick: #1C3F94;
+    --pick-bg: #E9EEF9;
+    --chip-bg: #FFFFFF;
+    --shadow: 0 1px 2px rgba(27,34,40,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171A;
+      --card: #1D2126;
+      --ink: #E9E8E4;
+      --mut: #9AA3AA;
+      --line: #2C3238;
+      --must: #F2616F;
+      --must-bg: #3A2126;
+      --pick: #8FA8E8;
+      --pick-bg: #212A3E;
+      --chip-bg: #1D2126;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F4F5F4; --card: #FFFFFF; --ink: #1B2228; --mut: #5C666E; --line: #E1E4E2;
+    --must: #C8102E; --must-bg: #FBEAEC; --pick: #1C3F94; --pick-bg: #E9EEF9;
+    --chip-bg: #FFFFFF; --shadow: 0 1px 2px rgba(27,34,40,.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171A; --card: #1D2126; --ink: #E9E8E4; --mut: #9AA3AA; --line: #2C3238;
+    --must: #F2616F; --must-bg: #3A2126; --pick: #8FA8E8; --pick-bg: #212A3E;
+    --chip-bg: #1D2126; --shadow: none;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 0 14px 64px; }
+
+  header.top { padding: 26px 2px 10px; }
+  header.top h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.9rem; font-weight: 700; margin: 0 0 4px; letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  header.top p { margin: 0; color: var(--mut); font-size: .92rem; }
+  header.top a { color: var(--pick); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 4px; font-size: .8rem; color: var(--mut); }
+
+  nav.days {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bg);
+    margin: 0 -14px; padding: 8px 14px;
+    display: flex; gap: 6px; overflow-x: auto;
+    border-bottom: 1px solid var(--line);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav.days::-webkit-scrollbar { display: none; }
+  nav.days a {
+    flex: 0 0 auto;
+    padding: 5px 12px; border-radius: 999px;
+    background: var(--chip-bg); border: 1px solid var(--line);
+    color: var(--ink); text-decoration: none; font-size: .82rem; font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  nav.days a:focus-visible, .tag:focus-visible, details summary:focus-visible { outline: 2px solid var(--pick); outline-offset: 2px; }
+
+  section.day { scroll-margin-top: 56px; margin-top: 26px; }
+  section.day > header { padding: 0 2px 10px; }
+  .dow {
+    display: block; font-size: .74rem; font-weight: 700; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--mut); margin-bottom: 2px;
+  }
+  section.day h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.32rem; font-weight: 700; margin: 0; letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+
+  .rows { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .row { display: grid; grid-template-columns: 56px 1fr; gap: 10px; padding: 11px 12px; }
+  .row + .row { border-top: 1px solid var(--line); }
+  .t { font-variant-numeric: tabular-nums; font-size: .85rem; font-weight: 700; color: var(--mut); padding-top: 2px; }
+  .c p { margin: 0; }
+  .what { font-weight: 600; }
+  .what a { color: inherit; text-decoration: none; }
+  .meta { color: var(--mut); font-size: .88rem; margin-top: 1px; }
+  .meta a { color: var(--pick); text-decoration: none; }
+  .fb { font-size: .84rem; margin-top: 3px; color: var(--mut); }
+  .fb b { color: var(--ink); font-weight: 600; }
+
+  .tag {
+    display: inline-block; vertical-align: 2px;
+    font-size: .62rem; font-weight: 800; letter-spacing: .08em;
+    padding: 1.5px 7px; border-radius: 999px; margin-left: 6px;
+  }
+  .tag.must { background: var(--must-bg); color: var(--must); }
+  .tag.pick { background: var(--pick-bg); color: var(--pick); }
+
+  details.extras { margin-top: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); box-shadow: var(--shadow); }
+  details.extras summary {
+    cursor: pointer; padding: 10px 14px; font-size: .88rem; font-weight: 600; color: var(--pick);
+    list-style: none; display: flex; align-items: center; gap: 8px;
+  }
+  details.extras summary::-webkit-details-marker { display: none; }
+  details.extras summary::before { content: "+"; font-weight: 700; width: 1em; }
+  details.extras[open] summary::before { content: "–"; }
+  details.extras ol { margin: 0; padding: 0 16px 12px 34px; }
+  details.extras li { margin: 6px 0; font-size: .9rem; }
+  details.extras li b { font-weight: 600; }
+  details.extras li span { color: var(--mut); }
+
+  section.flat { scroll-margin-top: 56px; margin-top: 30px; }
+  section.flat h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.32rem; margin: 0 2px 10px; letter-spacing: -.01em;
+  }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 14px 16px; }
+  .panel + .panel { margin-top: 10px; }
+  .panel h3 {
+    margin: 0 0 8px; font-size: .74rem; font-weight: 700; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--mut);
+  }
+  .panel ul, .panel ol { margin: 0; padding-left: 20px; }
+  .panel li { margin: 7px 0; font-size: .92rem; }
+  .panel li b { font-weight: 650; }
+  .panel .hl { color: var(--must); font-weight: 700; }
+
+  footer { margin-top: 34px; text-align: center; color: var(--mut); font-size: .8rem; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="top">
+    <h1>London, Wed&nbsp;→&nbsp;Wed</h1>
+    <p>Base: <a href="https://www.pointahotels.com">Point A Shoreditch</a>, 8-10 Paul St, EC2A 4JH — start &amp; end of every day.</p>
+    <p class="legend">
+      <span class="tag must" style="margin-left:0">MUST</span> your must-do list
+      <span class="tag pick" style="margin-left:0">PICK</span> your interesting list
+      <span>· plain = suggestion</span>
+    </p>
+  </header>
+
+  <nav class="days" aria-label="Jump to day">
+    <a href="#wed1">Wed</a><a href="#thu">Thu</a><a href="#fri">Fri</a><a href="#sat">Sat</a><a href="#sun">Sun</a><a href="#mon">Mon</a><a href="#tue">Tue</a><a href="#wed2">Wed ✈</a><a href="#book">Bookings</a><a href="#know">Good to know</a>
+  </nav>
+
+  <section class="day" id="wed1">
+    <header><span class="dow">Wednesday · arrival</span><h2>Land, drop bags, maybe a bagel</h2></header>
+    <div class="rows">
+      <div class="row"><div class="t">late</div><div class="c">
+        <p class="what">Check in — Point A Shoreditch</p>
+        <p class="meta">8-10 Paul St EC2A 4JH</p>
+      </div></div>
+      <div class="row"><div class="t">late</div><div class="c">
+        <p class="what">Beigel Bake (optional)</p>
+        <p class="meta">159 Brick Lane, 10 min walk · open 24h — legendary salt-beef bagel after travel</p>
+      </div></div>
+    </div>
+    <details class="extras"><summary>10 nearby if you have energy left</summary><ol>
+      <li><b>Nightjar</b> <span>— award-winning speakeasy, live jazz, City Rd (book)</span></li>
+      <li><b>Callooh Callay</b> <span>— Alice-in-Wonderland-ish cocktail bar, Rivington St</span></li>
+      <li><b>Happiness Forgets</b> <span>— tiny basement speakeasy, Hoxton Square</span></li>
+      <li><b>The Old Blue Last</b> <span>— legendary Shoreditch pub, Great Eastern St</span></li>
+      <li><b>BrewDog Shoreditch</b> <span>— craft beer till late, Bethnal Green Rd</span></li>
+      <li><b>Boxpark Shoreditch</b> <span>— container street food &amp; bars, till ~23</span></li>
+      <li><b>Beigel Shop</b> <span>— the yellow rival two doors from Beigel Bake; pick a side</span></li>
+      <li><b>Cocktail Trading Co</b> <span>— playful cocktails, Bethnal Green Rd</span></li>
+      <li><b>Well &amp; Bucket</b> <span>— Victorian-tiled pub with oysters, Bethnal Green Rd</span></li>
+      <li><b>Street-art night stroll</b> <span>— blocks around Brick Lane / Fashion St</span></li>
+    </ol></details>
+  </section>
+
+  <section class="day" id="thu">
+    <header><span class="dow">Thursday</span><h2>Camden → King's Cross → Hokus Pokus</h2></header>
+    <div class="rows">
+      <div class="row"><div class="t">09:30</div><div class="c">
+        <p class="what">Old St → Camden Town</p>
+        <p class="meta">Northern line, ~15 min</p>
+      </div></div>
+      <div class="row"><div class="t">10:30</div><div class="c">
+        <p class="what">Sai Sai + Black Widow<span class="tag pick">PICK</span></p>
+        <p class="meta">Alt-fashion &amp; gothic/corsetry shops, Stables Market, Chalk Farm Rd · <a href="https://www.saisai.co.uk">saisai.co.uk</a> · <a href="https://www.blackwidowlondon.com">blackwidowlondon.com</a></p>
+      </div></div>
+      <div class="row"><div class="t">12:30</div><div class="c">
+        <p class="what">Lunch: Camden Market street food</p>
+        <p class="meta">Stalls galore · <a href="https://www.camdenmarket.com">camdenmarket.com</a></p>
+      </div></div>
+      <div class="row"><div class="t">14:30</div><div class="c">
+        <p class="what">Regent's Canal walk → Coal Drops Yard</p>
+        <p class="meta">Camden → King's Cross towpath, ~40 min, very pretty</p>
+      </div></div>
+      <div class="row"><div class="t">17:00</div><div class="c">
+        <p class="what">Hokus Pokus – Alchemy Lab<span class="tag must">MUST</span></p>
+        <p class="meta">Cocktail alchemy under The Megaro, 1 Belgrove St · book · <a href="https://www.hokuspokus.co.uk">hokuspokus.co.uk</a></p>
+        <p class="fb">If full: <b>Booking Office 1869</b> — grand Victorian bar in St Pancras hotel next door</p>
+      </div></div>
+      <div class="row"><div class="t">20:00</div><div class="c">
+        <p class="what">Dinner: Burger &amp; Beyond<span class="tag must">MUST</span></p>
+        <p class="meta">147 Shoreditch High St · kitchen till 22 Thu · <a href="https://burgerandbeyond.co.uk">burgerandbeyond.co.uk</a></p>
+        <p class="fb">If full: <b>Bleecker Burger</b>, Spitalfields</p>
+      </div></div>
+    </div>
+    <details class="extras"><summary>10 nearby extras</summary><ol>
+      <li><b>Cyberdog</b> <span>— rave/cyber fashion warehouse with dancers, Stables Market</span></li>
+      <li><b>Amy Winehouse statue</b> <span>— Stables Market</span></li>
+      <li><b>Camden Lock</b> <span>— watch narrowboats work the lock</span></li>
+      <li><b>Primrose Hill</b> <span>— 15-min walk, top skyline view</span></li>
+      <li><b>Camden Town Brewery taproom</b> <span>— Kentish Town, 10 min north</span></li>
+      <li><b>Word on the Water</b> <span>— floating bookshop barge, King's Cross canal</span></li>
+      <li><b>Granary Square</b> <span>— fountains, canal steps, Coal Drops Yard shops</span></li>
+      <li><b>The Lighterman</b> <span>— canalside beers over Granary Square</span></li>
+      <li><b>Dishoom King's Cross</b> <span>— Bombay café in a rail shed; famous queue, bacon naan</span></li>
+      <li><b>Spiritland</b> <span>— audiophile hi-fi listening bar, King's Cross</span></li>
+    </ol></details>
+  </section>
+
+  <section class="day" id="fri">
+    <header><span class="dow">Friday</span><h2>Fitzrovia → Soho &amp; Chinatown</h2></header>
+    <div class="rows">
+      <div class="row"><div class="t">10:00</div><div class="c">
+        <p class="what">Warhammer flagship store<span class="tag pick">PICK</span></p>
+        <p class="meta">251 Tottenham Court Rd · <a href="https://www.warhammer.com">warhammer.com</a></p>
+      </div></div>
+      <div class="row"><div class="t">12:00</div><div class="c">
+        <p class="what">Lunch: Kung Fu Noodle<span class="tag must">MUST</span></p>
+        <p class="meta">64 Shaftesbury Ave · Lanzhou hand-pulled beef noodle soup · walk-in, go ~11:45 to beat the queue</p>
+      </div></div>
+      <div class="row"><div class="t">13:30</div><div class="c">
+        <p class="what">Soho + Chinatown wander · Taiyakiya<span class="tag pick">PICK</span></p>
+        <p class="meta">20 Newport Ct · fish-shaped filled waffles as a sweet snack</p>
+      </div></div>
+      <div class="row"><div class="t">17:45</div><div class="c">
+        <p class="what">Dinner: Kung Fu Burger<span class="tag must">MUST</span></p>
+        <p class="meta">104 Shaftesbury Ave · Chinese-style street burgers — <span style="font-weight:600">cash-only takeaway window</span>, eat on the go</p>
+      </div></div>
+      <div class="row"><div class="t">19:00</div><div class="c">
+        <p class="what">Evening: Rhum Tavern<span class="tag pick">PICK</span></p>
+        <p class="meta">48 Margaret St · pirate-ship rum bar, 400+ rums, till midnight · <a href="https://rhumtavern.com">rhumtavern.com</a></p>
+        <p class="fb">Bookable, but weeknight walk-ins usually fine</p>
+      </div></div>
+    </div>
+    <details class="extras"><summary>10 nearby extras</summary><ol>
+      <li><b>Forbidden Planet</b> <span>— giant sci-fi/comics megastore, Shaftesbury Ave</span></li>
+      <li><b>Orc's Nest</b> <span>— old-school tabletop &amp; board-game shop, Earlham St</span></li>
+      <li><b>Gosh! Comics</b> <span>— Soho comic institution, Berwick St</span></li>
+      <li><b>Liberty</b> <span>— spectacular Tudor-revival department store, Carnaby</span></li>
+      <li><b>Carnaby St &amp; Kingly Court</b> <span>— courtyard of restaurants/bars</span></li>
+      <li><b>Berwick Street</b> <span>— Soho's vinyl record shops</span></li>
+      <li><b>Bubblewrap Waffle</b> <span>— HK egg waffles + ice cream, Wardour St</span></li>
+      <li><b>Chinatown Bakery</b> <span>— egg tarts, taiyaki machines in the window</span></li>
+      <li><b>The French House</b> <span>— legendary tiny Soho pub, halves only</span></li>
+      <li><b>Bar Italia</b> <span>— 1949 espresso institution, open very late</span></li>
+    </ol></details>
+  </section>
+
+  <section class="day" id="sat">
+    <header><span class="dow">Saturday</span><h2>Broadway Market → Wembley concert</h2></header>
+    <div class="rows">
+      <div class="row"><div class="t">10:30</div><div class="c">
+        <p class="what">Broadway Market + London Fields</p>
+        <p class="meta">Saturday street-food/craft market, E8 · <a href="https://broadwaymarket.co.uk">broadwaymarket.co.uk</a></p>
+      </div></div>
+      <div class="row"><div class="t">12:30</div><div class="c">
+        <p class="what">Lunch: market stalls</p>
+        <p class="meta">Graze the market</p>
+      </div></div>
+      <div class="row"><div class="t">15:00</div><div class="c">
+        <p class="what">Head to Wembley</p>
+        <p class="meta">Overground → Jubilee/Metropolitan, ~50–60 min</p>
+      </div></div>
+      <div class="row"><div class="t">16:30</div><div class="c">
+        <p class="what">Early dinner: Boxpark Wembley</p>
+        <p class="meta">Street food + beers by the stadium, no booking · <a href="https://www.boxpark.co.uk">boxpark.co.uk</a></p>
+      </div></div>
+      <div class="row"><div class="t">17:00+</div><div class="c">
+        <p class="what">Concert — Wembley Stadium<span class="tag must">MUST</span></p>
+        <p class="meta">Doors typically ~17:00 · Night Tube/Overground runs late Sat for the trip home</p>
+      </div></div>
+    </div>
+    <details class="extras"><summary>10 nearby extras</summary><ol>
+      <li><b>Netil Market</b> <span>— small Saturday food/maker market next door</span></li>
+      <li><b>The Dove</b> <span>— Belgian beer specialist pub on Broadway Market</span></li>
+      <li><b>E5 Bakehouse</b> <span>— railway-arch bakery, London Fields</span></li>
+      <li><b>Climpson &amp; Sons</b> <span>— the market's flagship coffee roaster</span></li>
+      <li><b>London Fields Brewery taproom</b> <span>— Saturday arches session</span></li>
+      <li><b>Off Broadway</b> <span>— cocktail dive at the market's end</span></li>
+      <li><b>Regent's Canal stroll</b> <span>— Broadway Market → Victoria Park, 10 min</span></li>
+      <li><b>Victoria Park &amp; Pavilion Café</b> <span>— lakeside if sunny</span></li>
+      <li><b>Olympic Way + Bobby Moore statue</b> <span>— classic Wembley approach photo</span></li>
+      <li><b>London Designer Outlet</b> <span>— Wembley Park, if early</span></li>
+    </ol></details>
+  </section>
+
+  <section class="day" id="sun">
+    <header><span class="dow">Sunday · later start</span><h2>Borough Market → Bermondsey Beer Mile</h2></header>
+    <div class="rows">
+      <div class="row"><div class="t">11:00</div><div class="c">
+        <p class="what">Northern line to London Bridge</p>
+        <p class="meta">Sleep in first — taprooms don't open till noon anyway</p>
+      </div></div>
+      <div class="row"><div class="t">11:30</div><div class="c">
+        <p class="what">Lunch: Borough Market graze<span class="tag must">MUST</span></p>
+        <p class="meta">8 Southwark St · open Sun 10–16 · <a href="https://boroughmarket.org.uk">boroughmarket.org.uk</a></p>
+      </div></div>
+      <div class="row"><div class="t">13:00</div><div class="c">
+        <p class="what">Bermondsey Beer Mile<span class="tag must">MUST</span></p>
+        <p class="meta">Railway-arch taprooms southeast-bound: Southwark Brewing (Sun 12–17), Hiver (12–18), Anspach &amp; Hobday, BBNo… Sunday hours vary — check each · Maltby Street Market en route · <a href="https://bermondsey-beer-mile.co.uk">bermondsey-beer-mile.co.uk</a></p>
+      </div></div>
+      <div class="row"><div class="t">18:30</div><div class="c">
+        <p class="what">Back to Shoreditch, chill</p>
+        <p class="meta">Jubilee from Bermondsey → change, or bus</p>
+      </div></div>
+      <div class="row"><div class="t">20:00</div><div class="c">
+        <p class="what">Easy dinner: Gloria or Brick Lane curry</p>
+        <p class="meta">Gloria = over-the-top Italian (book or queue)</p>
+      </div></div>
+    </div>
+    <details class="extras"><summary>10 nearby extras</summary><ol>
+      <li><b>Maltby Street Market / Ropewalk</b> <span>— Sunday food stalls on the mile</span></li>
+      <li><b>The Rake</b> <span>— tiny legendary craft-beer bar at Borough Market</span></li>
+      <li><b>Southwark Cathedral</b> <span>— free, 2 min, London's oldest Gothic church</span></li>
+      <li><b>Golden Hinde</b> <span>— Drake's galleon replica in a tiny dock</span></li>
+      <li><b>Riverside walk</b> <span>— London Bridge → Tower Bridge</span></li>
+      <li><b>Tower Bridge</b> <span>— walk across for the classic view</span></li>
+      <li><b>Shad Thames / Butler's Wharf</b> <span>— Victorian warehouse street, river terraces</span></li>
+      <li><b>Bermondsey Street</b> <span>— White Cube gallery (free) + Watch House coffee</span></li>
+      <li><b>José</b> <span>— famous tiny sherry &amp; tapas bar, walk-in only</span></li>
+      <li><b>The Mayflower</b> <span>— historic riverside pub, Rotherhithe — a fitting endpoint</span></li>
+    </ol></details>
+  </section>
+
+  <section class="day" id="mon">
+    <header><span class="dow">Monday</span><h2>Covent Garden → West End show</h2></header>
+    <div class="rows">
+      <div class="row"><div class="t">10:30</div><div class="c">
+        <p class="what">Covent Garden<span class="tag pick">PICK</span></p>
+        <p class="meta">Piazza, Neal's Yard, Seven Dials · <a href="https://www.coventgarden.london">coventgarden.london</a></p>
+      </div></div>
+      <div class="row"><div class="t">13:00</div><div class="c">
+        <p class="what">Lunch: Clos Maggiore<span class="tag pick">PICK</span></p>
+        <p class="meta">33 King St · set lunch is the smart way in — book well ahead · <a href="https://www.closmaggiore.com">closmaggiore.com</a></p>
+        <p class="fb">If full: <b>Frenchie</b> (16 Henrietta St) or <b>Balthazar</b></p>
+      </div></div>
+      <div class="row"><div class="t">15:00</div><div class="c">
+        <p class="what">Seven Dials Market browse</p>
+        <p class="meta"><a href="https://www.sevendialsmarket.com">sevendialsmarket.com</a></p>
+      </div></div>
+      <div class="row"><div class="t">16:30</div><div class="c">
+        <p class="what">Gordon's Wine Bar<span class="tag pick">PICK</span></p>
+        <p class="meta">47 Villiers St · walk-in; arrive by ~16:30 for a candlelit cellar table · <a href="https://gordonswinebar.com">gordonswinebar.com</a></p>
+        <p class="fb">If rammed: <b>Cork &amp; Bottle</b> wine bar, Leicester Sq</p>
+      </div></div>
+      <div class="row"><div class="t">18:15</div><div class="c">
+        <p class="what">Pre-show dinner: Bun House<span class="tag pick">PICK</span></p>
+        <p class="meta">26-27 Lisle St · Cantonese buns, 5 min from the theatres · <a href="https://bun.house">bun.house</a></p>
+      </div></div>
+      <div class="row"><div class="t">19:30</div><div class="c">
+        <p class="what">West End show<span class="tag must">MUST</span></p>
+        <p class="meta">Book ahead — TodayTix / officiallondontheatre.com</p>
+        <p class="fb">No tickets? <b>TKTS booth</b>, Leicester Sq — same-day deals</p>
+      </div></div>
+    </div>
+    <details class="extras"><summary>10 nearby extras</summary><ol>
+      <li><b>Neal's Yard Dairy</b> <span>— Britain's best cheese shop, free tastes</span></li>
+      <li><b>The Lamb &amp; Flag</b> <span>— 1772 pub hidden up an alley</span></li>
+      <li><b>The Harp</b> <span>— multi-award-winning ale pub behind Charing Cross</span></li>
+      <li><b>Cecil Court</b> <span>— Victorian alley of antiquarian bookshops</span></li>
+      <li><b>Stanfords</b> <span>— historic travel bookshop, Mercer Walk</span></li>
+      <li><b>Benjamin Pollock's Toyshop</b> <span>— Victorian toy theatres, the Piazza</span></li>
+      <li><b>Piazza street performers</b> <span>— + Royal Opera House arcade</span></li>
+      <li><b>Victoria Embankment Gardens</b> <span>— next to Gordon's</span></li>
+      <li><b>Trafalgar Square</b> <span>— 5 min from Gordon's</span></li>
+      <li><b>Chinatown 5 min away</b> <span>— catch Taiyakiya if missed Friday</span></li>
+    </ol></details>
+  </section>
+
+  <section class="day" id="tue">
+    <header><span class="dow">Tuesday</span><h2>St James's → Hexmoor finale</h2></header>
+    <div class="rows">
+      <div class="row"><div class="t">10:30</div><div class="c">
+        <p class="what">Fortnum &amp; Mason food hall</p>
+        <p class="meta">181 Piccadilly + St James's stroll · <a href="https://www.fortnumandmason.com">fortnumandmason.com</a></p>
+      </div></div>
+      <div class="row"><div class="t">13:00</div><div class="c">
+        <p class="what">Lunch: Franco's<span class="tag pick">PICK</span></p>
+        <p class="meta">1 Jermyn St · classic Italian, book · <a href="https://francoslondon.com">francoslondon.com</a></p>
+        <p class="fb">If full: <b>45 Jermyn St</b>, a few doors down</p>
+      </div></div>
+      <div class="row"><div class="t">15:00</div><div class="c">
+        <p class="what">St James's Park walk, then head east</p>
+        <p class="meta">Pelicans, palace at the far end</p>
+      </div></div>
+      <div class="row"><div class="t">18:00</div><div class="c">
+        <p class="what">Hexmoor: Wizarding Prison<span class="tag must">MUST</span></p>
+        <p class="meta">Unit 11, 127 Hackney Rd · ticketed ~90-min immersive cocktail experience, 3 drinks included, 10 min from hotel — book a session · <a href="https://hexmoor.co.uk">hexmoor.co.uk</a></p>
+        <p class="fb">If sold out: <b>Nightjar</b> (Old St) or <b>The Last Tuesday Society</b> (Hackney curiosity-cabinet cocktails)</p>
+      </div></div>
+      <div class="row"><div class="t">20:15</div><div class="c">
+        <p class="what">Dinner: Smoking Goat or Lahpet</p>
+        <p class="meta">Thai BBQ / Burmese — both Shoreditch, walk-in-able early</p>
+      </div></div>
+    </div>
+    <details class="extras"><summary>10 nearby extras</summary><ol>
+      <li><b>Hatchards</b> <span>— London's oldest bookshop (1797), next to Fortnum's</span></li>
+      <li><b>Paxton &amp; Whitfield</b> <span>— cheesemonger since 1797, Jermyn St</span></li>
+      <li><b>Berry Bros. &amp; Rudd</b> <span>— wine merchant since 1698, a time capsule</span></li>
+      <li><b>Dukes Bar</b> <span>— the martinis that inspired Bond (smart-ish dress)</span></li>
+      <li><b>The Red Lion, Crown Passage</b> <span>— hidden proper pub down a tiny alley</span></li>
+      <li><b>Burlington Arcade</b> <span>— Regency arcade with beadle guards</span></li>
+      <li><b>St James's Park</b> <span>— pelican feeding ~14:30</span></li>
+      <li><b>Piccadilly Circus</b> <span>— + Trocadero arcades</span></li>
+      <li><b>St James's Church Piccadilly</b> <span>— small craft/food market in the courtyard</span></li>
+      <li><b>Milroy's of Soho</b> <span>— whisky shop with hidden basement bar</span></li>
+    </ol></details>
+  </section>
+
+  <section class="day" id="wed2">
+    <header><span class="dow">Wednesday · departure</span><h2>One last bagel, then home</h2></header>
+    <div class="rows">
+      <div class="row"><div class="t">am</div><div class="c">
+        <p class="what">Coffee + Beigel Bake breakfast bagel</p>
+        <p class="meta">Brick Lane · pack, off to the airport</p>
+      </div></div>
+    </div>
+    <details class="extras"><summary>10 morning extras if the flight is late</summary><ol>
+      <li><b>Dishoom Shoreditch</b> <span>— sit-down breakfast, the famous bacon naan</span></li>
+      <li><b>Ozone Coffee Roasters</b> <span>— serious brunch, 3 min from hotel</span></li>
+      <li><b>Old Spitalfields Market</b> <span>— covered market browse, 10 min</span></li>
+      <li><b>Leadenhall Market</b> <span>— Victorian arcade, Harry Potter's Diagon Alley</span></li>
+      <li><b>St Dunstan in the East</b> <span>— church-ruin garden in the City</span></li>
+      <li><b>Sky Garden</b> <span>— free morning slots if booked ahead</span></li>
+      <li><b>Brick Lane vintage shops</b> <span>— from ~11:00</span></li>
+      <li><b>Street-art hunt</b> <span>— Fashion St / Hanbury St</span></li>
+      <li><b>Whitecross Street food market</b> <span>— weekday lunch stalls if departing late</span></li>
+      <li><b>Arnold Circus</b> <span>— pretty bandstand circle, Boundary Estate</span></li>
+    </ol></details>
+  </section>
+
+  <section class="flat" id="book">
+    <h2>Book ahead</h2>
+    <div class="panel">
+      <ol>
+        <li><b>West End show, Monday</b> — TodayTix / official · fallback: same-day TKTS booth</li>
+        <li><b>Hexmoor, Tuesday ~18:00</b> — ticketed, sells out · fallback: Nightjar / Last Tuesday Society</li>
+        <li><b>Hokus Pokus, Thursday 17:00</b> — fallback: Booking Office 1869</li>
+        <li><b>Clos Maggiore, Monday set lunch</b> — books far ahead · fallback: Frenchie / Balthazar</li>
+        <li><b>Franco's, Tuesday lunch</b> — fallback: 45 Jermyn St</li>
+        <li><b>Burger &amp; Beyond, Thursday 20:00</b> — fallback: Bleecker Spitalfields</li>
+        <li><span class="hl">Bring cash for Kung Fu Burger</span> — it's a cash-only window</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="flat" id="know">
+    <h2>Good to know</h2>
+    <div class="panel">
+      <h3>Money &amp; tipping</h3>
+      <ul>
+        <li>Card/contactless works everywhere, even market stalls — you barely need cash. <span class="hl">Exception: Kung Fu Burger, cash only.</span></li>
+        <li>Restaurants usually add a 12.5% "service charge" — that <b>is</b> the tip. No tipping at pubs, bars or street food; round up taxis if you like.</li>
+        <li>Prices always include VAT — the tag price is what you pay.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Getting around</h3>
+      <ul>
+        <li>No tickets: tap in <b>and out</b> with contactless card/phone on Tube &amp; Overground (buses: tap in only, flat fare). One card per person; fares cap daily (~£9, zones 1–2).</li>
+        <li>Stand on the <b>right</b> on escalators — locals are serious about this.</li>
+        <li>Traffic comes from the <b>right</b> — look right first (it's painted on the road).</li>
+        <li>Get <b>Citymapper</b> — beats Google Maps for London transport. Avoid the Tube 08:00–09:30 &amp; 17:00–18:30.</li>
+        <li>Night Tube runs Fri &amp; Sat nights on several lines — useful after Wembley.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Pubs &amp; food</h3>
+      <ul>
+        <li>Order and pay <b>at the bar</b> — no table service in pubs. Grab a table first; rounds are the custom.</li>
+        <li>Last orders come early — many pubs close ~23:00.</li>
+        <li>Drinking age 18, "Challenge 25" is common — carry photo ID even if obviously older.</li>
+        <li>Licensed places must give free tap water — ask for "tap water".</li>
+        <li>Popular spots book out; queueing for walk-ins (Dishoom, Gloria) is normal and moves fast.</li>
+        <li>Cheap-lunch hack: supermarket <b>meal deal</b> (Tesco/Sainsbury's/Boots) ~£4–5.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Practical</h3>
+      <ul>
+        <li>UK plugs are <b>Type G</b>, 230 V — bring adapters.</li>
+        <li>Check your mobile plan — since Brexit the UK is excluded from many EU roaming bundles.</li>
+        <li>Emergency: <b>999</b> (112 works too). Pharmacies: Boots or any green cross.</li>
+        <li>The queue is sacred — join the back, never push in.</li>
+        <li>Layers + compact umbrella — rain shows up unannounced even in summer.</li>
+        <li>Sunday shop hours are short by law (bigger shops ~12:00–18:00).</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>MUST = your list of musts · PICK = your interesting list · plain = suggestions</footer>
+</div>
+</body>
+</html>
